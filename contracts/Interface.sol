@@ -5,7 +5,7 @@ pragma solidity ^0.4.15;
 import "./Exchange.sol";
 
 contract Interface is Exchange {
-    function getTokenIndexTestable(string _tokenSymbol) constant {
-        getTokenIndex(_tokenSymbol);
+    function getTokenIndexTestable(string _tokenSymbol) returns (uint8) {
+        return getTokenIndex(_tokenSymbol);
     }
 }
