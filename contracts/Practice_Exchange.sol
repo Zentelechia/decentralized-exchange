@@ -1,46 +1,35 @@
 pragma solidity ^0.4.15;
 
-import "github.com/OpenZeppelin/zeppelin-solidity/contracts/math/SafeMath.sol";
-import "github.com/OpenZeppelin/zeppelin-solidity/contracts/token/ERC20.sol";
+import "./zeppelin/ERC20.sol";
+import "./zeppelin/SafeMath.sol";
+import "./zeppelin/Ownable.sol";
 
-contract practice_exchange {
+contract practice_exchange is Ownable {
     
-// Constructer
+// Constructor
 
     // SafeMath
     using SafeMath for uint256;
     
-    // Asign ownership
-    function practice_exchange() internal {
-        owner = msg.sender;
-    }
+    // payable fallback
+    function () public payable {}
 
 // Modifiers
-    // Ownership modifier
-    modifier onlyowner() {
-        if (msg.sender == owner) {
-            _;
-        }
-    }
 
-// Data structures
+// Data
     
     // Ownership
     address owner;
-    
     // TokenIndex
     uint8 tokenIndexCounter = 1;
-    
     // Balances
         // msg.sender => ethBalance
-    mapping (address => uint) balancesETH;
         // msg.sender => tokenIndex => tokenBalance
+    mapping (address => uint) balancesETH;
     mapping (address => mapping (uint8 => uint)) balancesToken;
-    
     // Tokens
         // tokenIndex => Token struct
     mapping (uint8 => Token) tokenStruct;
-    
     struct Token {
         string tokenSymbol;
         address tokenAddress;
@@ -67,7 +56,7 @@ contract practice_exchange {
     
 // Functions
     // Admin adds tokens, starts at index 1
-    function addToken(string _tokenSymbol, address _erc20Addr) public onlyowner {
+    function addToken(string _tokenSymbol, address _erc20Addr) public onlyOwner {
         require(!hasToken(_tokenSymbol));
         require(_erc20Addr != address(0));
         tokenStruct[tokenIndexCounter].tokenSymbol = _tokenSymbol;
@@ -158,7 +147,7 @@ contract practice_exchange {
 
 // Events
     // New token added
-    
+    event AddToken();
     // Deposit ETH
     event DepositEther();
     // Withdraw ETH
@@ -167,7 +156,6 @@ contract practice_exchange {
     event DepositToken();
     // Withdraw Token 
     event WithdrawToken();
-    
     // Limit order created
     event LimitBuyOrder();
     event LimitSellOrder();
