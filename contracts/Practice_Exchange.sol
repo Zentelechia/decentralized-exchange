@@ -6,6 +6,7 @@ import "./zeppelin/Ownable.sol";
 
 contract practice_exchange is Ownable {
     
+    
 // Constructor
 
     // SafeMath
@@ -14,14 +15,16 @@ contract practice_exchange is Ownable {
     // payable fallback
     function () public payable {}
 
+
 // Modifiers
+
 
 // Data
     
     // Ownership
     address owner;
     // TokenIndex
-    uint8 tokenIndexCounter = 1;
+    uint8 tokenIndexCounter;
     // Balances
         // msg.sender => ethBalance
         // msg.sender => tokenIndex => tokenBalance
@@ -54,14 +57,17 @@ contract practice_exchange is Ownable {
         uint amount;
     }
     
+    
 // Functions
+
     // Admin adds tokens, starts at index 1
     function addToken(string _tokenSymbol, address _erc20Addr) public onlyOwner {
         require(!hasToken(_tokenSymbol));
         require(_erc20Addr != address(0));
+        tokenIndexCounter++;
         tokenStruct[tokenIndexCounter].tokenSymbol = _tokenSymbol;
         tokenStruct[tokenIndexCounter].tokenAddress = _erc20Addr;
-        tokenIndexCounter++;
+        AddToken(_tokenSymbol, _erc20Addr, tokenIndexCounter);
     }
     
     // User deposits tokens
@@ -74,6 +80,7 @@ contract practice_exchange is Ownable {
         require(token.transferFrom(msg.sender, this, _amount));
         require(token.approve(msg.sender, _amount));
         balancesToken[msg.sender][index] = balance.add(_amount);
+        DepositToken(msg.sender, _tokenSymbol, _amount);
     }
     
     // User withdraws tokens
@@ -84,12 +91,14 @@ contract practice_exchange is Ownable {
         require(hasToken(_tokenSymbol));
         require(token.transferFrom(this, msg.sender, _amount));
         balancesToken[msg.sender][index] = balance.sub(_amount);
+        WithdrawToken(msg.sender, _tokenSymbol, _amount);
     }
     
     // User deposits ETH
     function depositEther() public payable {
         uint balance = getEthBalanceInWei();
         balancesETH[msg.sender] = balance.add(msg.value);
+        DepositEther(msg.sender, msg.value);
     }
     
     // User withdraws ETH
@@ -97,6 +106,7 @@ contract practice_exchange is Ownable {
         uint balance = getEthBalanceInWei();
         balancesETH[msg.sender] = balance.sub(_amountWei);
         msg.sender.transfer(_amountWei);
+        WithdrawEther(msg.sender, _amountWei);
     }
     
     // User places buy order (execute if matching sellorder, store otherwise)
@@ -108,7 +118,16 @@ contract practice_exchange is Ownable {
     // Cancel specific limit order
     function cancelOrder(string token_symbol, bool isSellOrder, uint price_in_wei, uint offer_key) public {}
     
+    
 // Calls
+
+    // Return index of token
+    function getTokenIndex(string _tokenSymbol) internal constant returns (uint8) {
+        for (uint8 i = 1; i <= tokenIndexCounter; i++) {
+            if (keccak256(tokenStruct[i].tokenSymbol) == keccak256(_tokenSymbol)) { return i; }}
+        return 0;
+    }
+    
     // Check if token is on the exchange
     function hasToken(string token_symbol) public constant returns (bool) {
         if (getTokenIndex(token_symbol) != 0) { return true; }
@@ -122,6 +141,13 @@ contract practice_exchange is Ownable {
         return balancesToken[msg.sender][index];
     }
     
+    // Return token contract address
+    function getTokenAddress(string _tokenSymbol) public constant returns (address) {
+        uint8 index = getTokenIndex(_tokenSymbol);
+        require(hasToken(_tokenSymbol));
+        return tokenStruct[index].tokenAddress;
+    }
+    
     // Return ETH balance of msg.sender
     function getEthBalanceInWei() public constant returns (uint) {
         return balancesETH[msg.sender];
@@ -131,31 +157,16 @@ contract practice_exchange is Ownable {
     function getSellOrderBook(string token_symbol) public constant returns (uint[],uint[]) {}
     function getBuyOrderBook(string token_symbol) public constant returns (uint[],uint[]) {}
     
-    // Return index of token
-    function getTokenIndex(string _tokenSymbol) internal constant returns (uint8) {
-        for (uint8 i = 1; i <= tokenIndexCounter; i++) {
-            if (keccak256(tokenStruct[i].tokenSymbol) == keccak256(_tokenSymbol)) { return i; }}
-        return 0;
-    }
     
-    // Return token contract address
-    function getTokenAddress(string _tokenSymbol) public constant returns (address) {
-        uint8 index = getTokenIndex(_tokenSymbol);
-        require(hasToken(_tokenSymbol));
-        return tokenStruct[index].tokenAddress;
-    }
-
 // Events
+
     // New token added
-    event AddToken();
-    // Deposit ETH
-    event DepositEther();
-    // Withdraw ETH
-    event WithdrawEther();
-    // Deposit Token 
-    event DepositToken();
-    // Withdraw Token 
-    event WithdrawToken();
+    event AddToken(string indexed _tokenSymbol, address indexed _erc20Addr, uint8 indexed _tokenIndex);
+    // Deposit and Withdraw
+    event DepositEther(address indexed depositor, uint indexed amountWei);
+    event WithdrawEther(address indexed withdrawer, uint indexed amountWei);
+    event DepositToken(address indexed depositor, string indexed tokenSymbol, uint indexed amount);
+    event WithdrawToken(address indexed withdrawer, string indexed tokenSymbol, uint indexed amount);
     // Limit order created
     event LimitBuyOrder();
     event LimitSellOrder();
