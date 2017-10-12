@@ -1,5 +1,6 @@
-const pe = artifacts.require("./Practice_Exchange.sol");
-const erc = artifacts.require("./zeppelin/ERC20.sol");
+var pec = artifacts.require("./Exchange.sol");
+var erc = artifacts.require("./zeppelin/ERC20.sol");
+var int = artifacts.require("./Interface.sol");
 
 const expectThrow = function () {
     return async promise => {
@@ -18,7 +19,7 @@ const expectThrow = function () {
     };
 }
 
-contract("Practice Exchange", function(accounts) {
+contract("Exchange", function(accounts) {
     
     // Assign testrpc accounts to variables
     const acc0 = accounts[0]; // Owner
@@ -28,10 +29,13 @@ contract("Practice Exchange", function(accounts) {
     const acc4 = accounts[4]; // Dummy address
     const acc5 = accounts[5];
     
+    // web3.BigNumber(1);
+    // web3.fromAscii("short");
+    
     // Generate dummy constants
-    const dummyString1 = "token";
-    const dummyString2 = "test";
-    const emptyString = "";
+    const dummyString1 = web3.fromAscii("token");
+    const dummyString2 = web3.fromAscii("test");
+    const emptyString = web3.fromAscii("");
     const dummyAddress = acc4;
     const zeroAddress = 0x0;
     
@@ -42,8 +46,9 @@ contract("Practice Exchange", function(accounts) {
     beforeEach(async function() {
 
         // assign new contract instances to variables
-        exchange = await pe.new();
+        exchange = await pec.new();
         token = await erc.new();
+        interface = await int.new();
 
         // mint tokens to 2 accounts
         await token.mint(acc2, 1000);
@@ -58,7 +63,7 @@ contract("Practice Exchange", function(accounts) {
 
             it("should return 0 if _tokenSymbol does not exist", async function() {
                 await exchange.addToken(dummyString1, token.address, {from: acc0});
-                let index = await exchange.getTokenIndex(dummyString2);
+                let index = await interface.getTokenIndexTestable.call(dummyString2);
                 assert.equal(index, 0, "did not return 0");
             });
             
@@ -67,11 +72,11 @@ contract("Practice Exchange", function(accounts) {
             });
             
             it("should return 1 for first token", async function() {
-
+                
             });
             
             it("should return 2 for second token", async function() {
-
+                
             });
 
         });
@@ -79,7 +84,7 @@ contract("Practice Exchange", function(accounts) {
         describe("hasToken", function() {
 
             it("", async function() {
-
+                
             });
 
         });
@@ -87,7 +92,7 @@ contract("Practice Exchange", function(accounts) {
         describe("getTokenBalance", function() {
 
             it("", async function() {
-
+                
             });
 
         });
@@ -95,7 +100,7 @@ contract("Practice Exchange", function(accounts) {
         describe("getTokenAddress", function() {
 
             it("", async function() {
-
+                
             });
 
         });
@@ -103,7 +108,7 @@ contract("Practice Exchange", function(accounts) {
         describe("getEthBalanceInWei", function() {
 
             it("", async function() {
-
+                
             });
 
         });
@@ -115,27 +120,27 @@ contract("Practice Exchange", function(accounts) {
             });
 
             it("should throw if tokenAddress is set to 0 address", async function() {
-
+                
             });
             
             it("should throw if _tokenSymbol is not valid string", async function() {
-
+                
             });
             
             it("should throw if _erc20Addr is not valid address", async function() {
-
+                
             });
 
             it("should correctly set the tokenSybol to the struct", async function() {
-
+                
             });
 
             it("should correctly set the tokenAddress to the struct", async function() {
-
+                
             });
 
             it("should increment the tokenIndexCounter by exactly 1", async function() {
-
+                
             });
 
         });
@@ -143,7 +148,7 @@ contract("Practice Exchange", function(accounts) {
         describe("depositToken", function() {
 
             it("", async function() {
-
+                
             });
 
         });
@@ -151,7 +156,7 @@ contract("Practice Exchange", function(accounts) {
         describe("withdrawToken", function() {
 
             it("", async function() {
-
+                
             });
 
         });
@@ -159,7 +164,7 @@ contract("Practice Exchange", function(accounts) {
         describe("depositEther", function() {
 
             it("", async function() {
-
+                
             });
 
         });
@@ -167,7 +172,7 @@ contract("Practice Exchange", function(accounts) {
         describe("withdrawEther", function() {
 
             it("", async function() {
-
+                
             });
 
         });

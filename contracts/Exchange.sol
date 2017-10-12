@@ -4,8 +4,7 @@ import "./zeppelin/ERC20.sol";
 import "./zeppelin/SafeMath.sol";
 import "./zeppelin/Ownable.sol";
 
-contract practice_exchange is Ownable {
-    
+contract Exchange is Ownable {
     
 // Constructor
 
@@ -161,7 +160,7 @@ contract practice_exchange is Ownable {
 // Events
 
     // New token added
-    event AddToken(string indexed _tokenSymbol, address indexed _erc20Addr, uint8 indexed _tokenIndex);
+    event AddToken(string _tokenSymbol, address indexed _erc20Addr, uint8 indexed _tokenIndex);
     // Deposit and Withdraw
     event DepositEther(address indexed depositor, uint indexed amountWei);
     event WithdrawEther(address indexed withdrawer, uint indexed amountWei);
