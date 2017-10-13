@@ -50,15 +50,15 @@ contract("Exchange", function(accounts) {
         interface = await int.new();
 
         // mint tokens to 2 accounts
-        await token.mint(acc2, 1000);
-        await token.mint(acc3, 10);
-        await token.finishMinting();
+        await token.mint(acc2, 1000, {from: acc0});
+        await token.mint(acc3, 10, {from: acc0});
+        await token.finishMinting({from: acc0});
 
     });
     
     describe("Unit tests", function() {
         
-        // interface function does not return up to the interface
+        // interface function does not return up to the interface, must validate through hasToken
         describe.skip("getTokenIndex", function() {
 
             it("should return 0 if _tokenSymbol does not exist", async function() {
@@ -90,15 +90,61 @@ contract("Exchange", function(accounts) {
         
         describe("hasToken", function() {
 
-            it("", async function() {
-                
+            it("should return true if first _tokenSymbol exists", async function() {
+                await exchange.addToken(dummyString1, token.address, {from: acc0});
+                let test = await exchange.hasToken.call(dummyString1);
+                assert.equal(test, true, "did not return true");
             });
-
+            
+            it("should return true if second _tokenSymbol exists", async function() {
+                await exchange.addToken(dummyString1, token.address, {from: acc0});
+                await exchange.addToken(dummyString2, token.address, {from: acc0});
+                let test = await exchange.hasToken.call(dummyString2);
+                assert.equal(test, true, "did not return true");
+            });
+            
+            it("should return false if _tokenSymbol does not exist", async function() {
+                await exchange.addToken(dummyString1, token.address, {from: acc0});
+                let test = await exchange.hasToken.call(dummyString2);
+                assert.equal(test, false, "did not return false");
+            });
+            
+            it("should return false if _tokenSymbol is empty string", async function() {
+                let test = await exchange.hasToken.call("");
+                assert.equal(test, false, "did not return false");
+            });            
+            
+            it("should return false if no token is initiated", async function() {
+                let test = await exchange.hasToken.call(dummyString1);
+                assert.equal(test, false, "did not return false");
+            });
+            
         });
         
         describe("getTokenBalance", function() {
 
-            it("", async function() {
+            // does not accurately test for throws
+            it.skip("should throw if _tokenSymbol is not initiated", async function() {
+                await exchange.addToken(dummyString1, token.address, {from: acc0});
+                await expectThrow(exchange.getTokenBalance.call(dummyString2));
+            });
+            
+            it("should return right balance of empty account", async function() {
+                await exchange.addToken(dummyString1, token.address, {from: acc0});
+                let index = await exchange.getTokenBalance.call(dummyString1, {from: acc1});
+                assert.equal(index.toNumber(), 0, "did not return right balance");
+            });
+            
+            // need to test depositToken
+            it.skip("should return right balance of not empty account", async function() {
+                await exchange.addToken(dummyString1, token.address, {from: acc0});
+                await token.approve(exchange.address, 1000, {from: acc2})
+                await exchange.depositToken(dummyString1, 500, {from: acc2})
+                let index = await exchange.getTokenBalance.call(dummyString1, {from: acc1});
+                assert.equal(index.toNumber(), 500, "did not return right balance");
+            });
+            
+            it("should return right balance of multiple tokens", async function() {
                 
             });
 
@@ -121,12 +167,30 @@ contract("Exchange", function(accounts) {
         });
         
         describe("addToken", function() {
+            
+            // currently no prevention for two tokens with same address
         
-            it("should throw if the tokenSymbol exists", async function() {
+            it("should correctly set _tokenSymbol", async function() {
+                await exchange.addToken(dummyString1, token.address, {from: acc0});
+                let test = await exchange.hasToken(dummyString1, {from: acc0});
+                assert.equal(test, true, "_tokenSymbol not set");
+            });
+
+            it("should correctly set _tokenAddress", async function() {
+                await exchange.addToken(dummyString1, token.address, {from: acc0});
+                let test = await exchange.getTokenAddress.call(dummyString1, {from: acc0});
+                assert.equal(test, token.address, "_tokenAddress not set");
+            });
+            
+            it("should throw if _tokenSymbol exists", async function() {
+                
+            });
+            
+            it("should throw if _tokenSymbol is empty string", async function() {
                 
             });
 
-            it("should throw if tokenAddress is set to 0 address", async function() {
+            it("should throw if _tokenAddress is set to 0 address", async function() {
                 
             });
             
@@ -138,17 +202,11 @@ contract("Exchange", function(accounts) {
                 
             });
 
-            it("should correctly set the tokenSybol to the struct", async function() {
-                
-            });
-
-            it("should correctly set the tokenAddress to the struct", async function() {
-                
-            });
-
             it("should increment the tokenIndexCounter by exactly 1", async function() {
                 
             });
+            
+            
 
         });
 

@@ -128,8 +128,8 @@ contract Exchange is Ownable {
     }
     
     // Check if token is on the exchange
-    function hasToken(string token_symbol) public constant returns (bool) {
-        if (getTokenIndex(token_symbol) != 0) { return true; }
+    function hasToken(string _tokenSymbol) public constant returns (bool) {
+        if (getTokenIndex(_tokenSymbol) != 0) { return true; }
         return false;
     }
     
@@ -153,19 +153,19 @@ contract Exchange is Ownable {
     }
     
     // Return order books (price, volume)
-    function getSellOrderBook(string token_symbol) public constant returns (uint[],uint[]) {}
-    function getBuyOrderBook(string token_symbol) public constant returns (uint[],uint[]) {}
+    function getSellOrderBook(string _tokenSymbol) public constant returns (uint[],uint[]) {}
+    function getBuyOrderBook(string _tokenSymbol) public constant returns (uint[],uint[]) {}
     
     
 // Events
 
     // New token added
-    event AddToken(string _tokenSymbol, address indexed _erc20Addr, uint8 indexed _tokenIndex);
+    event AddToken(string tokenSymbol, address indexed erc20Addr, uint8 indexed tokenIndex);
     // Deposit and Withdraw
     event DepositEther(address indexed depositor, uint indexed amountWei);
     event WithdrawEther(address indexed withdrawer, uint indexed amountWei);
-    event DepositToken(address indexed depositor, string indexed tokenSymbol, uint indexed amount);
-    event WithdrawToken(address indexed withdrawer, string indexed tokenSymbol, uint indexed amount);
+    event DepositToken(address indexed depositor, string tokenSymbol, uint indexed amount);
+    event WithdrawToken(address indexed withdrawer, string tokenSymbol, uint indexed amount);
     // Limit order created
     event LimitBuyOrder();
     event LimitSellOrder();
